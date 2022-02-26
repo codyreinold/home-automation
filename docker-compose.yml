@@ -79,6 +79,7 @@ services:
       - /dev/ttyUSB0:/dev/ttyUSB0
 
   mosquitto:
+    container_name: mosquitto
     image: eclipse-mosquitto
     volumes:
       - ./storage/mosquitto:/mosquitto
