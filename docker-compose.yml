@@ -1,0 +1,92 @@
+version: '3.8'
+services:
+  homeassistant:
+    depends_on:
+      - postgres
+      - influxdb
+    container_name: homeassistant
+    image: ghcr.io/home-assistant/home-assistant:latest
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./storage/homeassistant/config:/config
+    restart: unless-stopped
+    privileged: true
+    network_mode: host
+
+  influxdb:
+    container_name: influxdb
+    image: influxdb:1.7.1
+    restart: unless-stopped
+    network_mode: host
+    ports:
+      - "8086:8086"
+      - "8083:8083"
+    environment:
+      INFLUXDB_DB: ${INFLUXDB_DB}
+      INFLUXDB_USER: ${INFLUXDB_USER}
+      INFLUXDB_USER_PASSWORD: ${INFLUXDB_USER_PASSWORD}
+    volumes:
+      - ./storage/influxdb:/var/lib/influxdb
+      - /etc/localtime:/etc/localtime:ro
+
+  grafana:
+    depends_on:
+      - influxdb
+    image: grafana/grafana:latest
+    container_name: grafana
+    network_mode: host
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,briangann-gauge-panel,natel-plotly-panel,grafana-simple-json-datasource
+    volumes:
+      - ./storage/grafana:/var/lib/grafana
+
+  postgres:
+    container_name: postgres
+    image: postgres:11.1
+    restart: always
+    network_mode: host
+    ports:
+      - "5234:5234"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ./storage/postgres:/var/lib/postgresql/data
+      - /etc/localtime:/etc/localtime:ro
+
+  nodered:
+    container_name: nodered
+    image: nodered/node-red-docker:latest
+    network_mode: host
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - ./storage/nodered:/data
+    ports:
+      - "1880:1880"
+    user: 'root'
+
+  zigbee2mqtt:
+    depends_on:
+      - mosquitto
+    container_name: zigbee2mqtt
+    image: koenkk/zigbee2mqtt
+    restart: unless-stopped
+    volumes:
+      - ./storage/zigbee2mqtt:/app/data
+      - /run/udev:/run/udev:ro
+    ports:
+      - 8080:8080
+    environment:
+      - TZ=America/New_York
+    devices:
+      - /dev/ttyUSB0:/dev/ttyUSB0
+
+  mosquitto:
+    image: eclipse-mosquitto
+    volumes:
+      - ./storage/mosquitto:/mosquitto
+    ports:
+      - 1883:1883
+      - 9001:9001
