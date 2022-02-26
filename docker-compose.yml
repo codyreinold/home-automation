@@ -11,13 +11,11 @@ services:
       - ./storage/homeassistant/config:/config
     restart: unless-stopped
     privileged: true
-    network_mode: host
 
   influxdb:
     container_name: influxdb
     image: influxdb:1.7.1
     restart: unless-stopped
-    network_mode: host
     ports:
       - "8086:8086"
       - "8083:8083"
@@ -34,7 +32,6 @@ services:
       - influxdb
     image: grafana/grafana:latest
     container_name: grafana
-    network_mode: host
     ports:
       - "3000:3000"
     environment:
@@ -46,7 +43,6 @@ services:
     container_name: postgres
     image: postgres:11.1
     restart: always
-    network_mode: host
     ports:
       - "5234:5234"
     environment:
@@ -59,7 +55,6 @@ services:
   nodered:
     container_name: nodered
     image: nodered/node-red:latest
-    network_mode: host
     volumes:
       - /etc/timezone:/etc/timezone:ro
       - ./storage/nodered:/data
