@@ -52,7 +52,6 @@ services:
       - GF_INSTALL_PLUGINS=grafana-clock-panel,briangann-gauge-panel,natel-plotly-panel,grafana-simple-json-datasource
     volumes:
       - ./storage/grafana:/var/lib/grafana
-    user: '104'
 
   mosquitto:
     container_name: mosquitto
