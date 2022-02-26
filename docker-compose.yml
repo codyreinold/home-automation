@@ -1,47 +1,9 @@
 version: '3.8'
 services:
-  homeassistant:
-    depends_on:
-      - postgres
-      - influxdb
-    container_name: homeassistant
-    image: ghcr.io/home-assistant/home-assistant:latest
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - ./storage/homeassistant/config:/config
-    restart: unless-stopped
-    privileged: true
-
-  influxdb:
-    container_name: influxdb
-    image: influxdb:1.7.1
-    restart: unless-stopped
-    ports:
-      - "8086:8086"
-      - "8083:8083"
-    environment:
-      INFLUXDB_DB: ${INFLUXDB_DB}
-      INFLUXDB_USER: ${INFLUXDB_USER}
-      INFLUXDB_USER_PASSWORD: ${INFLUXDB_USER_PASSWORD}
-    volumes:
-      - ./storage/influxdb:/var/lib/influxdb
-      - /etc/localtime:/etc/localtime:ro
-
-  grafana:
-    depends_on:
-      - influxdb
-    image: grafana/grafana:latest
-    container_name: grafana
-    ports:
-      - "3000:3000"
-    environment:
-      - GF_INSTALL_PLUGINS=grafana-clock-panel,briangann-gauge-panel,natel-plotly-panel,grafana-simple-json-datasource
-    volumes:
-      - ./storage/grafana:/var/lib/grafana
 
   postgres:
     container_name: postgres
-    image: postgres:11.1
+    image: postgres:latest
     restart: always
     ports:
       - "5234:5234"
@@ -52,22 +14,62 @@ services:
       - ./storage/postgres:/var/lib/postgresql/data
       - /etc/localtime:/etc/localtime:ro
 
-  nodered:
-    container_name: nodered
-    image: nodered/node-red:latest
-    volumes:
-      - /etc/timezone:/etc/timezone:ro
-      - ./storage/nodered:/data
+  influxdb:
+    container_name: influxdb
+    image: influxdb:1.7.1
+    restart: always
     ports:
-      - "1880:1880"
-    user: 'root'
+      - "8086:8086"
+      - "8083:8083"
+    environment:
+      INFLUXDB_DB: ${INFLUXDB_DB}
+      INFLUXDB_USER: ${INFLUXDB_USER}
+      INFLUXDB_USER_PASSWORD: ${INFLUXDB_USER_PASSWORD}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./storage/influxdb:/var/lib/influxdb
+
+  homeassistant:
+    depends_on:
+      - postgres
+      - influxdb
+    container_name: homeassistant
+    image: ghcr.io/home-assistant/home-assistant:latest
+    restart: always
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./storage/homeassistant/config:/config
+
+  grafana:
+    depends_on:
+      - influxdb
+    container_name: grafana
+    image: grafana/grafana:latest
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,briangann-gauge-panel,natel-plotly-panel,grafana-simple-json-datasource
+    volumes:
+      - ./storage/grafana:/var/lib/grafana
+    user: '104'
+
+  mosquitto:
+    container_name: mosquitto
+    image: eclipse-mosquitto
+    restart: always
+    volumes:
+      - ./storage/mosquitto:/mosquitto
+    ports:
+      - 1883:1883
+      - 9001:9001
 
   zigbee2mqtt:
     depends_on:
       - mosquitto
     container_name: zigbee2mqtt
     image: koenkk/zigbee2mqtt
-    restart: unless-stopped
+    restart: always
     volumes:
       - ./storage/zigbee2mqtt:/app/data
       - /run/udev:/run/udev:ro
@@ -78,11 +80,12 @@ services:
     devices:
       - /dev/ttyUSB0:/dev/ttyUSB0
 
-  mosquitto:
-    container_name: mosquitto
-    image: eclipse-mosquitto
+  nodered:
+    container_name: nodered
+    image: nodered/node-red:latest
+    restart: always
     volumes:
-      - ./storage/mosquitto:/mosquitto
+      - /etc/timezone:/etc/timezone:ro
+      - ./storage/nodered:/data
     ports:
-      - 1883:1883
-      - 9001:9001
+      - "1880:1880"
