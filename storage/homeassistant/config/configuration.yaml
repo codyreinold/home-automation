@@ -1,0 +1,18 @@
+homeassistant:
+  name: Home
+  latitude: 38.893130
+  longitude: -77.019560
+  elevation: 6
+  unit_system: imperial
+  currency: USD
+  time_zone: "America/New_York"
+  internal_url: "http://192.168.1.99:8123"
+  allowlist_external_dirs:
+    - "/usr/var/dumping-ground"
+    - "/tmp"
+  allowlist_external_urls:
+    - "http://images.com/image1.png"
+  media_dirs:
+    media: "/media"
+    recordings: "/mnt/recordings"
+  legacy_templates: false
