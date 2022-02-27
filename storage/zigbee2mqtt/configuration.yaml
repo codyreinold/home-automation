@@ -11,3 +11,5 @@ serial:
 # Enable the Zigbee2MQTT frontend
 frontend:
   port: 8080
+advanced:
+  network_key: GENERATE
