@@ -41,7 +41,8 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ./storage/homeassistant/config:/config
-    user: root
+    privileged: true
+    network_mode: host
 
   grafana:
     depends_on:
