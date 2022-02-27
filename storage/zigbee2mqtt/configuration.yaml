@@ -1,6 +1,4 @@
 homeassistant: true
-# Let new devices join our zigbee network
-permit_join: true
 # Docker-Compose makes the MQTT-Server available using "mqtt" hostname
 mqtt:
   base_topic: zigbee2mqtt
