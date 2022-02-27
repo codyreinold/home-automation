@@ -13,6 +13,7 @@ services:
     volumes:
       - ./storage/postgres:/var/lib/postgresql/data
       - /etc/localtime:/etc/localtime:ro
+    user: root
 
   influxdb:
     container_name: influxdb
@@ -28,6 +29,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ./storage/influxdb:/var/lib/influxdb
+    user: root
 
   homeassistant:
     depends_on:
@@ -39,6 +41,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ./storage/homeassistant/config:/config
+    user: root
 
   grafana:
     depends_on:
@@ -52,6 +55,7 @@ services:
       - GF_INSTALL_PLUGINS=grafana-clock-panel,briangann-gauge-panel,natel-plotly-panel,grafana-simple-json-datasource
     volumes:
       - ./storage/grafana:/var/lib/grafana
+    user: root
 
   mosquitto:
     container_name: mosquitto
@@ -62,6 +66,7 @@ services:
     ports:
       - 1883:1883
       - 9001:9001
+    user: root
 
   zigbee2mqtt:
     depends_on:
@@ -78,6 +83,7 @@ services:
       - TZ=America/New_York
     devices:
       - /dev/ttyUSB0:/dev/ttyUSB0
+    user: root
 
   nodered:
     container_name: nodered
@@ -88,3 +94,4 @@ services:
       - ./storage/nodered:/data
     ports:
       - "1880:1880"
+    user: root
